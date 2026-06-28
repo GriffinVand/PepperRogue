@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://3iv6mn2q44bv"]
+
+[ext_resource type="PackedScene" uid="uid://bvd8swp0jp8cs" path="res://enemies/triangle/triangle.glb" id="1_5slm2"]
+[ext_resource type="Script" uid="uid://bihktr2b7rngh" path="res://enemies/triangle/triangle.gd" id="1_xi33v"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_cysb7"]
+radius = 0.4
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ad43o"]
+points = PackedVector3Array(1, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, -1, 0.25, -1, 0, -0.25, -1, 0, 0, -1, 0.25, 0, -1, -0.25)
+
+[node name="Triangle" type="CharacterBody3D" unique_id=397252095]
+script = ExtResource("1_xi33v")
+collision_dict = Dictionary[String, Array]({
+"Body_Bottom": [1.0, 0],
+"Body_Top": [1.0, 0],
+"Crit_Collision": [2.0, 1],
+"None": [0.0, 3]
+})
+
+[node name="Mesh" parent="." unique_id=1033066359 instance=ExtResource("1_5slm2")]
+
+[node name="Crit_Collision" type="CollisionShape3D" parent="." unique_id=751090901]
+shape = SubResource("SphereShape3D_cysb7")
+
+[node name="Body_Bottom" type="CollisionShape3D" parent="." unique_id=1010962403]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1016404, 0)
+shape = SubResource("ConvexPolygonShape3D_ad43o")
+
+[node name="Body_Top" type="CollisionShape3D" parent="." unique_id=735782062]
+transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, 0, 0.1099633, 0)
+shape = SubResource("ConvexPolygonShape3D_ad43o")
