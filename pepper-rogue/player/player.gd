@@ -3,17 +3,21 @@ extends CharacterBody3D
 
 var player_allegiance : Combatant.Allegiance = Combatant.Allegiance.FRIENDLY 
 
-@export var speed = 10
-@export var fall_speed = 75
-@export var jump_impulse = 20.0
+@export var speed = 8
+@export var fall_speed = 60
+@export var jump_impulse = 30.0
 var vertical_vel = 0.0
 @export var sensitivity = 0.01
 @export var max_pitch = deg_to_rad(70)
-@export var default_weapon_path : String
+@export var default_weapon_paths : Array[String]
+@export var selected_weapon : int = 0
 
 @onready var camera_pivot : Node3D = $Pivot/CameraPivot
+@onready var camera : Camera3D = $Pivot/CameraPivot/Camera3D
 @onready var weapon_pivot : Node3D = $Pivot/CameraPivot/WeaponPivot
 @onready var weapon_controller : WeaponController = $Pivot/WeaponController
+
+var player_hud : Player_HUD
 
 var pitch = 0.0
 var last_mov_alpha = Vector2.ZERO
@@ -24,7 +28,7 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	$Pivot/WeaponController.player = self
 	$Pivot/WeaponController.camera_pivot = camera_pivot
-	$Pivot/WeaponController.equip_weapon(default_weapon_path)
+	$Pivot/WeaponController.equip_weapon(default_weapon_paths[selected_weapon])
 	
 	
 func _unhandled_input(event: InputEvent) -> void:

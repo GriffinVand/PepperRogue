@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://dr4nkk3cvc8k6"]
+
+[ext_resource type="Script" uid="uid://bse7jkcdxcse4" path="res://ui/master_ui.gd" id="1_owwfx"]
+
+[node name="Master_UI" type="CanvasLayer" unique_id=1078336596]
+script = ExtResource("1_owwfx")
+
+[node name="Global_Root" type="Control" parent="." unique_id=465211403]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HUD_Layer" type="Control" parent="Global_Root" unique_id=184078243]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Menu_Layer" type="Control" parent="Global_Root" unique_id=578195618]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="System_Layer" type="Control" parent="Global_Root" unique_id=763276610]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

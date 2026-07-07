@@ -3,14 +3,19 @@ extends Node3D
 
 var controller : WeaponController
 
-@export var damage = 5.0
-@export var fire_rate = 0.5
-var fire_delay = 0.0
-var can_fire = false
-var fire_pressed = false
-@export var ads_speed = 5.0
-var ads: bool = false
+
 var ads_delta = 0.0
+@export var hip_fov : float = 90.0
+@export var ads_fov : float = 75.0
+
+@export_category("Stats")
+@export var damage := 5.0
+@export var fire_rate := 0.5
+@export var ads_speed := 5.0
+@export var mag_size : int = 5
+@export var max_reserve : int = 50
+var curr_mag : int = mag_size
+var curr_reserve : int = max_reserve
 
 
 @export_category("Pivots")
@@ -43,6 +48,8 @@ var target_recoil_rot = Vector2.ZERO
 @export var recoil_rot_multiplier = Vector2.ZERO
 @export var max_recoil_dir = Vector2.ZERO
 @export var max_recoil_rot = Vector2.ZERO
+@export var max_recoil_dir_ads = Vector2.ZERO
+@export var max_recoil_rot_ads = Vector2.ZERO
 @export var recoil_apply_speed = Vector2.ZERO
 @export var recoil_recov_speed = Vector2.ZERO
 
@@ -53,56 +60,79 @@ var target_view_offset = Vector2.ZERO
 @export var offset_apply_speed = 1.0
 @export var offset_recov_speed = 1.0
 
+@export_group("Movement Bob")
+@export var bob_speed : Vector2 = Vector2(5.0, 10.0)
+@export var bob_amp := Vector2(0.15, 0.05)
+@export var bob_amp_ads := Vector2(0.05, 0.015)
+@export var max_bob_height := 0.05
+@export var max_bob_back := 0.01
+
 func _process(delta: float) -> void:
-	update_ads(delta)
+	update_bob(delta)
 	update_sway(delta)
 	update_recoil(delta)
 	update_view_offset(delta)
-	if fire_delay < fire_rate:
-		fire_delay += delta
-	else:
-		can_fire = true
-		if fire_pressed:
-			fire()
 	
-	
-	
-func update_ads(delta: float) -> void:
-	ads_delta = ads_delta + ads_speed * delta if ads else ads_delta - ads_speed * delta
-	ads_delta = clampf(ads_delta, 0, 1)
+func update_ads(new_delta) -> void:
+	ads_delta = new_delta
 	weapon_mesh.position = lerp(hip_node.position, ads_node.position, ads_delta)
 	weapon_mesh.rotation = lerp(hip_node.rotation, ads_node.rotation, ads_delta)
 	
+func update_bob(delta: float) -> void:
+	if controller and controller.player:
+		var next = bob_pivot.position
+		var player_vel = controller.player.velocity
+		if player_vel.length() > 0 and controller.player.is_on_floor():
+			var max_amp = lerp(bob_amp, bob_amp_ads, ads_delta)
+			var target_x = sin(Time.get_ticks_msec() * 0.001 * bob_speed.x) * max_amp.x
+			var target_y = sin(Time.get_ticks_msec() * 0.001 * bob_speed.y) * max_amp.y
+			var target_z = max_bob_back if player_vel.z != 0 else 0.0
+			next = lerp(bob_pivot.position, Vector3(target_x, target_y, target_z), delta * 4.0)
+			next = clamp(next, Vector3(-max_amp.x, -max_amp.y, -max_bob_back), Vector3(max_amp.x, max_amp.y, max_bob_back))
+			bob_pivot.position = next
+		elif not controller.player.is_on_floor():
+			next = lerp(bob_pivot.position, Vector3(0.0,max_bob_height,0.0), delta * 5.0)
+		else:
+			next = bob_pivot.position.move_toward(Vector3.ZERO, delta * 0.2)
+		bob_pivot.position = next
+	
 func update_sway(delta: float) -> void:
 	var target_look_scaled = Vector2(target_look.x * max_look_sway.x, target_look.y * max_look_sway.y)
-	current_look = current_look.move_toward(target_look_scaled, delta * 15.0)
+	current_look = lerp(current_look, target_look_scaled, delta * 15.0)
 	var target_mov_scaled = target_mov * max_mov_sway
-	current_mov = current_mov.move_toward(target_mov_scaled, delta * 15.0)
+	current_mov = lerp(current_mov, target_mov_scaled, delta * 15.0)
 	sway_pivot.rotation_degrees = Vector3(-current_look.y, -current_look.x, -current_mov.x)
 	
 func update_recoil(delta: float) -> void:
-	current_recoil_dir = current_recoil_dir.move_toward(target_recoil_dir, delta * recoil_apply_speed.x)
-	current_recoil_rot = current_recoil_rot.move_toward(target_recoil_rot, delta * recoil_apply_speed.y)
+	current_recoil_dir = lerp(current_recoil_dir, target_recoil_dir, delta * recoil_apply_speed.x)
+	current_recoil_rot = lerp(current_recoil_rot, target_recoil_rot, delta * recoil_apply_speed.y)
+	var max_dir = lerp(max_recoil_dir_ads, max_recoil_dir, 1 - ads_delta)
+	var max_rot = lerp(max_recoil_rot_ads, max_recoil_rot, 1 - ads_delta)
+	current_recoil_dir.y = clamp(current_recoil_dir.y, -max_dir.y, max_dir.y)
+	current_recoil_dir.x = clamp(current_recoil_dir.x, -max_dir.x, max_dir.x)
+	current_recoil_rot.x = clamp(current_recoil_rot.x, -max_rot.x, max_rot.x)
+	current_recoil_rot.y = clamp(current_recoil_rot.y, -max_rot.y, max_rot.y)
 	recoil_pivot.position = Vector3(0.0, current_recoil_dir.x, current_recoil_dir.y)
 	recoil_pivot.rotation_degrees = Vector3(-current_recoil_rot.y, -current_recoil_rot.x, 0.0)
-	target_recoil_dir = target_recoil_dir.move_toward(Vector2.ZERO, delta * recoil_recov_speed.x)
-	target_recoil_rot = target_recoil_rot.move_toward(Vector2.ZERO, delta * recoil_recov_speed.y)
+	target_recoil_dir = lerp(target_recoil_dir, Vector2.ZERO, delta * recoil_recov_speed.x)
+	target_recoil_rot = lerp(target_recoil_rot, Vector2.ZERO, delta * recoil_recov_speed.y)
 	
 func update_view_offset(delta: float) -> void:
-	current_view_offset = current_view_offset.move_toward(target_view_offset, delta * offset_apply_speed)
+	current_view_offset = lerp(current_view_offset, target_view_offset, delta * offset_apply_speed)
 	if controller:
 		controller.owner.apply_view_offset(current_view_offset)
 	target_view_offset = target_view_offset.move_toward(Vector2.ZERO, delta * offset_recov_speed)
 	
+func can_fire() -> bool:
+	return curr_mag > 0
+
 func fire() -> void:
 	if not controller:
 		print("Controller is null weapon::fire")
 		return
 	
+	curr_mag-=1
 	damage_trace()
-	
-	fire_delay = 0.0
-	can_fire = false
 	
 	if len(fire_view_offsets) > 0:
 		target_view_offset = fire_view_offsets.pick_random()

@@ -1,0 +1,63 @@
+[gd_scene format=3 uid="uid://cm8r1isaqii6h"]
+
+[ext_resource type="Script" uid="uid://cyrmh23lsrci4" path="res://weapons/revolver/revolver.gd" id="1_340fk"]
+[ext_resource type="PackedScene" uid="uid://dmvhbd4026ox0" path="res://weapons/rocket_launcher/rocket_launcher.glb" id="2_s7blr"]
+
+[node name="Rocket_Launcher" type="Node3D" unique_id=1235784545 node_paths=PackedStringArray("ads_node", "hip_node", "weapon_mesh", "recoil_pivot", "bob_pivot", "sway_pivot", "fire_pivot")]
+script = ExtResource("1_340fk")
+damage = 1.0
+fire_rate = 1.0
+ads_node = NodePath("Pivot/Ads_Pivot")
+hip_node = NodePath("Pivot/Hip_Pivot")
+weapon_mesh = NodePath("Pivot/Mesh_Pivot")
+recoil_pivot = NodePath("Pivot/Mesh_Pivot/Recoil_Pivot")
+bob_pivot = NodePath("Pivot/Mesh_Pivot/Recoil_Pivot/Bob_Pivot")
+sway_pivot = NodePath("Pivot/Mesh_Pivot/Recoil_Pivot/Bob_Pivot/Sway_Pivot")
+fire_pivot = NodePath("Pivot/Mesh_Pivot/Recoil_Pivot/Bob_Pivot/Sway_Pivot/SpringArm3D/Spring_Pivot/Weapon_Mesh/Fire_Pivot")
+max_look_sway = Vector2(10, 20)
+recoil_dir = Vector2(-1, 1)
+recoil_rot_multiplier = Vector2(30, 30)
+max_recoil_dir = Vector2(0.2, 1.5)
+max_recoil_rot = Vector2(20, 80)
+max_recoil_dir_ads = Vector2(0.05, 0.03)
+max_recoil_rot_ads = Vector2(10, 20)
+recoil_apply_speed = Vector2(60, 50)
+recoil_recov_speed = Vector2(4, 5)
+fire_view_offsets = Array[Vector2]([Vector2(2.5, -2.5)])
+offset_apply_speed = 50.0
+offset_recov_speed = 30.0
+bob_speed = Vector2(7.5, 15)
+bob_amp = Vector2(0.05, 0.03)
+bob_amp_ads = Vector2(0.01, 0.006)
+max_bob_height = 0.0
+
+[node name="Pivot" type="Node3D" parent="." unique_id=1500532728]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6138117, -0.43803495)
+
+[node name="Ads_Pivot" type="Node3D" parent="Pivot" unique_id=1663162512]
+transform = Transform3D(1, 0, 0, 0, 0.99999964, 0, 0, 0, 0.99999964, 0.12264383, -0.32770002, 0.0026206374)
+
+[node name="Hip_Pivot" type="Node3D" parent="Pivot" unique_id=1421955110]
+transform = Transform3D(0.9655379, 1.8626448e-09, -0.26026246, 0.014682181, 0.99840736, 0.05446888, 0.25984797, -0.05641298, 0.96400034, 0.38902777, -0.32521188, -0.054019272)
+
+[node name="Mesh_Pivot" type="Node3D" parent="Pivot" unique_id=1152116030]
+transform = Transform3D(1, 0, 0, 0, 0.9999998, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Recoil_Pivot" type="Node3D" parent="Pivot/Mesh_Pivot" unique_id=1836715294]
+
+[node name="Bob_Pivot" type="Node3D" parent="Pivot/Mesh_Pivot/Recoil_Pivot" unique_id=167907575]
+
+[node name="Sway_Pivot" type="Node3D" parent="Pivot/Mesh_Pivot/Recoil_Pivot/Bob_Pivot" unique_id=1530422091]
+
+[node name="SpringArm3D" type="SpringArm3D" parent="Pivot/Mesh_Pivot/Recoil_Pivot/Bob_Pivot/Sway_Pivot" unique_id=821109978]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.20506513, 0.4375473)
+spring_length = 1.48
+
+[node name="Spring_Pivot" type="Node3D" parent="Pivot/Mesh_Pivot/Recoil_Pivot/Bob_Pivot/Sway_Pivot/SpringArm3D" unique_id=276920792]
+transform = Transform3D(-1, 0, 8.7422784e-08, 0, 1, 0, -8.7422784e-08, 0, -1, -1.3011359e-07, 0, 1.488326)
+
+[node name="Weapon_Mesh" parent="Pivot/Mesh_Pivot/Recoil_Pivot/Bob_Pivot/Sway_Pivot/SpringArm3D/Spring_Pivot" unique_id=1616877459 instance=ExtResource("2_s7blr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.2654337)
+
+[node name="Fire_Pivot" type="Node3D" parent="Pivot/Mesh_Pivot/Recoil_Pivot/Bob_Pivot/Sway_Pivot/SpringArm3D/Spring_Pivot/Weapon_Mesh" unique_id=120230213]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0011218786, -1.2913376)

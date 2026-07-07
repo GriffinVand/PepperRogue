@@ -4,3 +4,5 @@
 
 [node name="WeaponController" type="Node3D" unique_id=2039075949]
 script = ExtResource("1_mw5ie")
+
+[node name="Fire_Cooldown" type="Timer" parent="." unique_id=1994829292]
